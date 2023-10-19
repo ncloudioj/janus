@@ -1,0 +1,16 @@
+FROM rust:1.73.0-slim-buster
+
+WORKDIR /app
+
+COPY db db
+
+RUN \
+  cargo install sqlx-cli --no-default-features --features postgres && \
+  groupadd --gid 10001 app && \
+  useradd -m -g app --uid 10001 -s /usr/sbin/nologin app
+
+USER app
+
+# ENV DATABASE_URL="postgres://dap:{password}@{db-host}:5432/dap"
+ENTRYPOINT ["sqlx"]
+CMD ["migrate", "run", "--source", "./db"]
